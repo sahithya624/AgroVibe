@@ -1,0 +1,70 @@
+services:
+  - type: web
+    name: smartfarmingai-backend
+    env: python
+    region: oregon  # Change to your preferred region: oregon, frankfurt, singapore
+    plan: free  # Options: free, starter ($7/mo), standard ($25/mo)
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    
+    envVars:
+      # Python Configuration
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      
+      # Database Configuration (Add these manually in Render Dashboard)
+      - key: DATABASE_URL
+        sync: false  # Set manually: postgresql://postgres:[PASSWORD]@db.xxxxx.supabase.co:5432/postgres
+      
+      - key: SUPABASE_URL
+        sync: false  # Set manually: https://xxxxx.supabase.co
+      
+      - key: SUPABASE_KEY
+        sync: false  # Set manually: your service_role key
+      
+      # AI/LLM Configuration
+      - key: GROQ_API_KEY
+        sync: false  # Set manually: your Groq API key
+      
+      - key: GROQ_PRIMARY_MODEL
+        value: llama-3.3-70b-versatile
+      
+      - key: GROQ_FAST_MODEL
+        value: llama-3.1-8b-instant
+      
+      - key: GROQ_CLASSIFIER_MODEL
+        value: gemma-2-9b-it
+      
+      # Authentication Configuration
+      - key: JWT_SECRET_KEY
+        sync: false  # Generate with: openssl rand -hex 32
+      
+      - key: JWT_ALGORITHM
+        value: HS256
+      
+      - key: JWT_EXPIRATION_HOURS
+        value: 24
+      
+      # Weather API (Optional)
+      - key: WEATHER_API_KEY
+        sync: false  # Optional: OpenWeatherMap API key
+      
+      - key: DEFAULT_CITY
+        value: New York
+      
+      # OpenAI (Optional Alternative to Groq)
+      - key: OPENAI_API_KEY
+        sync: false  # Optional
+      
+      # Feature Flags
+      - key: ENABLE_REAL_TIME_WEATHER
+        value: true
+      
+      - key: ENABLE_LLM_FALLBACK
+        value: true
+      
+      # Application Settings
+      - key: DEBUG
+        value: false
