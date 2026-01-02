@@ -39,7 +39,13 @@ class Settings(BaseSettings):
 
     # Supabase / Database Settings
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
-    SUPABASE_KEY: str = os.getenv("SUPABASE_KEY", "")
+    # Try multiple possible key names for flexibility
+    SUPABASE_KEY: str = (
+        os.getenv("SUPABASE_KEY") or 
+        os.getenv("SUPABASE_ANON_KEY") or 
+        os.getenv("SUPABASE_SERVICE_ROLE_KEY") or 
+        ""
+    )
     ENABLE_REAL_DB: bool = os.getenv("ENABLE_REAL_DB", "False").lower() == "true"
 
     class Config:
