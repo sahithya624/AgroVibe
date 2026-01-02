@@ -24,10 +24,22 @@ async def startup_event():
     """Initialize services on startup. ML models will be lazy-loaded to save memory."""
     logger.info("Application starting (ML models will load on-demand)...")
     
+    # Diagnostic logging for database connection
+    from backend.config import settings
+    logger.info(f"SUPABASE_URL set: {bool(settings.SUPABASE_URL)}")
+    logger.info(f"SUPABASE_KEY set: {bool(settings.SUPABASE_KEY)}")
+    logger.info(f"ENABLE_REAL_DB: {settings.ENABLE_REAL_DB}")
+    
     if supabase:
-        logger.info("Database connection verified")
+        logger.info("✓ Database connection verified")
     else:
-        logger.warning("Database connection NOT initialized. Using mock mode.")
+        logger.warning("✗ Database connection NOT initialized. Using mock mode.")
+        if not settings.SUPABASE_URL:
+            logger.warning("  → SUPABASE_URL is not set")
+        if not settings.SUPABASE_KEY:
+            logger.warning("  → SUPABASE_KEY is not set")
+        if not settings.ENABLE_REAL_DB:
+            logger.warning("  → ENABLE_REAL_DB is False (set to 'true' to enable)")
         
     logger.info("Application startup complete")
 
