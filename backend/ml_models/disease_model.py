@@ -65,28 +65,39 @@ class DiseaseClassifier:
         ]
 
     def _load_model(self):
-        """Load pretrained ResNet18 with custom head."""
-        model = models.resnet18(pretrained=True)
-        num_ftrs = model.fc.in_features
-        
-        # Adjust output layer to match number of classes
-        num_classes = len(self.classes)
-        model.fc = nn.Linear(num_ftrs, num_classes)
-        
-        if os.path.exists(self.model_path):
+        """Load model only if weights exist, otherwise return None to trigger intelligent simulation."""
+        # Save memory on platforms like Render by not loading the heavy base model if weights aren't present
+        if not os.path.exists(self.model_path) and os.getenv("RENDER"):
+            logger.warning(f"Optimization: Running on Render without local model file. Skipping ResNet initialization to save RAM.")
+            return None
+        elif not os.path.exists(self.model_path):
+            logger.warning(f"Disease model path {self.model_path} not found. Skipping ResNet initialization.")
+            return None
+
+        try:
+            # We only load ResNet if we actually have weights to put into it
+            logger.info("Initializing ResNet18...")
+            # Use weights=None/pretrained=False to avoid downloading base weights we'll overwrite anyway
             try:
-                model.load_state_dict(torch.load(self.model_path, map_location=self.device))
-                logger.info(f"Loaded disease model from {self.model_path}")
-                self.model_trained = True
-            except Exception as e:
-                logger.error(f"Error loading disease model: {e}")
-                logger.warning("Using intelligent simulation mode instead of untrained model")
-        else:
-            logger.warning(f"Disease model path {self.model_path} not found. Using intelligent simulation mode.")
-        
-        model = model.to(self.device)
-        model.eval()
-        return model
+                model = models.resnet18(weights=None)
+            except TypeError:
+                # Fallback for older torchvision
+                model = models.resnet18(pretrained=False)
+                
+            num_ftrs = model.fc.in_features
+            num_classes = len(self.classes)
+            model.fc = nn.Linear(num_ftrs, num_classes)
+            
+            model.load_state_dict(torch.load(self.model_path, map_location=self.device))
+            logger.info(f"Loaded disease model from {self.model_path}")
+            self.model_trained = True
+            
+            model = model.to(self.device)
+            model.eval()
+            return model
+        except Exception as e:
+            logger.error(f"Error loading disease model: {e}")
+            return None
 
     def predict(self, image_bytes) -> dict:
         """
