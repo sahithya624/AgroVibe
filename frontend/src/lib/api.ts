@@ -1,8 +1,7 @@
 ﻿import axios from "axios";
 
-// Force 127.0.0.1 to debug Network Error (ignoring .env for now)
-const API_URL = "http://127.0.0.1:8000/api";
-// const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+// Use dynamic environment variable for production
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
 
 const api = axios.create({
   baseURL: API_URL,

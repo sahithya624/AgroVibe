@@ -34,7 +34,7 @@ async def startup_event():
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex="http://localhost:.*|http://127.0.0.1:.*", # Robust for dev
+    allow_origins=["*"], # Allow all origins for production stability
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
