@@ -12,7 +12,13 @@ services:
     envVars:
       # Python Configuration
       - key: PYTHON_VERSION
-        value: 3.10.0
+        value: 3.10.12
+      
+      - key: RENDER
+        value: true
+      
+      - key: ENABLE_REAL_DB
+        value: true
       
       # Database Configuration (Add these manually in Render Dashboard)
       - key: DATABASE_URL
