@@ -13,7 +13,7 @@ const api = axios.create({
 // Add request interceptor for auth
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('smartfarm_token');
-  if (token) {
+  if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
