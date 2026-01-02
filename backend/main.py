@@ -21,11 +21,8 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize models and services on startup."""
-    logger.info("Initializing ML models...")
-    get_disease_classifier()
-    get_yield_predictor()
-    get_soil_analyzer()
+    """Initialize services on startup. ML models will be lazy-loaded to save memory."""
+    logger.info("Application starting (ML models will load on-demand)...")
     
     if supabase:
         logger.info("Database connection verified")
